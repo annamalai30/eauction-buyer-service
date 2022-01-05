@@ -1,5 +1,7 @@
 package com.eauction.eauctionbuyerservice.repository.impl;
 
+import java.util.logging.Logger;
+
 import org.dozer.DozerBeanMapper;
 import org.springframework.stereotype.Repository;
 
@@ -22,6 +24,8 @@ import com.eauction.eauctionbuyerservice.utils.Constants;
 @Repository
 public class BuyerRepository implements IBuyerRepository {
 
+	static Logger logger = Logger.getLogger(BuyerRepository.class.getName());
+
 	AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard().build();
 
 	DynamoDBMapper mapper = new DynamoDBMapper(client);
@@ -32,38 +36,40 @@ public class BuyerRepository implements IBuyerRepository {
 		return mapper.load(ProductInfo.class, productId);
 	}
 
-	public BidInformationDTO getBidInformation(BidInformationDTO bidInformationDTO) {
+	public BidInformationDTO getBidInformation(String productId, String buyerEmailId) {
+		logger.info("getBidInformation repository layer Starts Here");
 		BidInformation bidInformation = new BidInformation();
-		bidInformation.setEmail(bidInformationDTO.getEmail());
-		bidInformation.setProductId(bidInformationDTO.getProductId());
+		bidInformation.setEmail(buyerEmailId);
+		bidInformation.setProductId(productId);
 
 		BidInformation bidInformationDB = mapper.load(bidInformation,
 				new DynamoDBMapperConfig(DynamoDBMapperConfig.ConsistentReads.CONSISTENT));
 		if (bidInformationDB != null) {
 			DozerBeanMapper dozerBeanMapper = new DozerBeanMapper();
 			BidInformationDTO bidInformationResponse = dozerBeanMapper.map(bidInformationDB, BidInformationDTO.class);
+			logger.info("getBidInformation repository layer Ends Here " + bidInformationResponse);
 			return bidInformationResponse;
 		}
+		logger.info("getBidInformation repository layer Ends Here ");
 		return null;
 	}
 
-	public String updateBidInformation(BidInformationDTO bidInformationDTO) {
-		Table table = dynamoDB.getTable("BidInformation");
+	public String updateBidInformation(String productId, String buyerEmailId, int newBidAmount) {
 
+		logger.info("updateBidInformation repository layer Ends Here ");
+		Table table = dynamoDB.getTable("BidInformation");
 		UpdateItemSpec updateItemSpec = new UpdateItemSpec()
-				.withPrimaryKey("Email", bidInformationDTO.getEmail(), "ProductId", bidInformationDTO.getProductId())
-				.withUpdateExpression("set BidAmount = :r")
-				.withValueMap(new ValueMap().withNumber(":r", bidInformationDTO.getBidAmount()))
+				.withPrimaryKey("Email", buyerEmailId, "ProductId", productId)
+				.withUpdateExpression("set BidAmount = :r").withValueMap(new ValueMap().withNumber(":r", newBidAmount))
 				.withReturnValues(ReturnValue.UPDATED_NEW);
 
 		try {
-			System.out.println("Updating the item...");
+			logger.info("updateBidInformation repository, Updating the item...");
 			UpdateItemOutcome outcome = table.updateItem(updateItemSpec);
-			System.out.println("UpdateItem succeeded:\n" + outcome.getItem().toJSONPretty());
+			logger.info("updateBidInformation repository, UpdateItem succeeded:\n" + outcome.getItem().toJSONPretty());
 			return Constants.SUCCESS;
 		} catch (Exception e) {
-			System.err.println("Unable to update item: ");
-			System.err.println(e.getMessage());
+			logger.info("updateBidInformation repository Exception " + e.getMessage());
 			return Constants.FAILED;
 		}
 	}

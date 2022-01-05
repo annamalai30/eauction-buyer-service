@@ -1,8 +1,7 @@
 package com.eauction.eauctionbuyerservice.service;
 
 import com.eauction.eauctionbuyerservice.customException.BidDateException;
-import com.eauction.eauctionbuyerservice.dto.BidInformationDTO;
 
 public interface IBuyerService {
-	String updateBid(BidInformationDTO bidInformationDTO) throws BidDateException;
+	String updateBid(String productId, String buyerEmailId, int newBidAmount) throws BidDateException;
 }
