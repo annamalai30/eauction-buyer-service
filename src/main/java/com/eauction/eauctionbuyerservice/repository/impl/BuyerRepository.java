@@ -5,6 +5,8 @@ import java.util.logging.Logger;
 import org.dozer.DozerBeanMapper;
 import org.springframework.stereotype.Repository;
 
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
@@ -26,7 +28,10 @@ public class BuyerRepository implements IBuyerRepository {
 
 	static Logger logger = Logger.getLogger(BuyerRepository.class.getName());
 
-	AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard().build();
+	AmazonDynamoDB client = AmazonDynamoDBClientBuilder.standard()
+			.withCredentials(new AWSStaticCredentialsProvider(
+					new BasicAWSCredentials("AKIARBJUXX6FQBVMR44P", "5J/IKaXzR/J1yQmm9Qgg5UBwScb5gCfbC+hUG1la")))
+			.build();
 
 	DynamoDBMapper mapper = new DynamoDBMapper(client);
 
