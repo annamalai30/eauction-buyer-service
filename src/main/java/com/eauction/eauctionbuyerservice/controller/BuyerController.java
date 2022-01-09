@@ -3,6 +3,7 @@ package com.eauction.eauctionbuyerservice.controller;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,7 +23,7 @@ public class BuyerController {
 	@Autowired
 	IBuyerService buyerService;
 
-	@PostMapping(path = "/updatebid/{productId}/{buyerEmailId}/{newBidAmount}")
+	@GetMapping(path = "/updatebid/{productId}/{buyerEmailId}/{newBidAmount}")
 	public Response updateBidController(@PathVariable String productId, @PathVariable String buyerEmailId,
 			@PathVariable int newBidAmount) throws BidDateException {
 		logger.info("updateBidController Starts Here");
